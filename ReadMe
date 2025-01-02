@@ -1,0 +1,33 @@
+Haven't included the build files and setup.py in the repository because I don't have a ubundu system to perform the colcon build.
+
+Sensor_Node communicates with a sensor connected on TCP port 2000.
+
+Feature - 1
+--------------------
+Automatically sends the start command (with the interval that can be set as a parameter)
+to the sensor on launch
+
+"send_start_command" function is called fron the "initialize_sensor" function along with the intervel as an arg. In the "send_start_command" function initially the TCP socket connection is done using "connect_to_sensor" function and it later the socket is build in the function with the help of "build_message" function. After sending the command it moves to "receive_sensor_data" and waits to receive data from the sensors.
+
+Feature - 2
+---------------------
+Decodes the status messages received and publishes the various parameters to
+appropriate topics.
+
+When the data is received from the sensors "process_sensor_data" function is called from "receive_sensor_data" in order to process the received data accordingly. Here the initial id check and excluding of start, end, CRLF are done. Then the "decode_status_message" function is called. Here unpacking status message payload and publishing decoded data according to each data type happens.
+
+/supply_voltage	- std_msgs/UInt16 - Supply voltage in millivolts
+/env_temp	    - std_msgs/Int16  - Environmental temperature in deci-Celsius
+/yaw	        - std_msgs/Int16  - Yaw angle in deci-degrees
+/pitch	        - std_msgs/Int16  - Pitch angle in deci-degrees 
+/roll	        - std_msgs/Int16  - Roll angle in deci-degrees 
+
+Feature - 3
+---------------------
+An option to the user start (with custom interval) and stop the sensor.
+
+For this we use two services;
+
+/start_sensor - It is a SetInt32 type. The service starts the sensor with a custom interval by calling "send_stop_command".
+
+/stop_sensor - It is a SetBool type.The service stops the sensor by calling "send_stop_command".
